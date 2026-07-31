@@ -146,35 +146,35 @@ the Language Rule in `_shared/index.md`.
 
 ## Acceptance Criteria
 
-- [ ] **AC1** — For every anchor in the F1a spec docs, the referenced line in
+- [x] **AC1** — For every anchor in the F1a spec docs, the referenced line in
       the current tree contains the symbol the prose claims. Spot-verifiable
       with `sed -n '<N>p' <file>` for any anchor picked at random.
-- [ ] **AC2** — No spec text still describes removed API: grep for
+- [x] **AC2** — No spec text still describes removed API: grep for
       `runPromise` and `runAbortController` in `.trellis/spec/` returns nothing
       except where the text explicitly marks them as replaced.
-- [ ] **AC3** — `pi-coding-agent/extensions/extension-api.md` documents
+- [x] **AC3** — `pi-coding-agent/extensions/extension-api.md` documents
       `registerMarkdownTransformer` (with `MarkdownTransformer` /
       `MarkdownTransformContext`) and the `core/pi-manifest.ts` extraction with
       its validation behavior.
-- [ ] **AC4** — `pi-agent-core/harness/session-and-storage.md` describes the
+- [x] **AC4** — `pi-agent-core/harness/session-and-storage.md` describes the
       `activeTasks` / `TrackedTaskKind` / `startOperation` / `waitForTasks` /
       `isShutdown` / `assertNotShutDown` model.
-- [ ] **AC5** — `pi-tui/rendering/terminal-and-width.md` documents the
+- [x] **AC5** — `pi-tui/rendering/terminal-and-width.md` documents the
       terminal spacing-mark rules in `graphemeWidth`, and the new
       `Marked` / `Token` / `Tokens` exports are recorded in a `pi-tui` doc.
-- [ ] **AC6** — `pi-ai` docs cover Bedrock structured failure diagnostics and
+- [x] **AC6** — `pi-ai` docs cover Bedrock structured failure diagnostics and
       the `supportsFinishReason` compat flag.
-- [ ] **AC7** — `python3 ./.trellis/scripts/get_context.py --mode packages`
+- [x] **AC7** — `python3 ./.trellis/scripts/get_context.py --mode packages`
       lists `pi-protocol` with its layer, and the printed spec files exist.
-- [ ] **AC8** — `.trellis/spec/pi-protocol/**` anchors resolve to real
+- [x] **AC8** — `.trellis/spec/pi-protocol/**` anchors resolve to real
       symbols in `packages/protocol/src/**`, same spot-check as AC1.
-- [ ] **AC9** — `_shared/index.md` Scope + Package Layers and
+- [x] **AC9** — `_shared/index.md` Scope + Package Layers and
       `_shared/testing.md` vitest table all include protocol; no "not covered
       on purpose" claim contradicts the new layer.
-- [ ] **AC10** — No Chinese prose in any file this task adds or edits:
+- [x] **AC10** — No Chinese prose in any file this task adds or edits:
       `grep -rnP '[\x{4e00}-\x{9fff}]' .trellis/spec .trellis/tasks/07-31-01-sync-spec-upstream`
       returns only the pre-existing CJK *width sample* at
-      `pi-tui/rendering/terminal-and-width.md:55` (`让`, used as a width-2
+      `pi-tui/rendering/terminal-and-width.md:71` (`让`, used as a width-2
       grapheme example). Sample characters inside technical examples are data,
       not prose, and are exempt from the Language Rule.
 
