@@ -171,6 +171,8 @@ packages:
     path: packages/coding-agent
   pi-evals:
     path: packages/evals
+  pi-protocol:
+    path: packages/protocol
   pi-server:
     path: packages/server
   pi-tui:

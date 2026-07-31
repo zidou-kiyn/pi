@@ -6,7 +6,7 @@
 ## Scope
 
 Applies to all workspaces listed in the root `package.json`:
-`packages/{agent,ai,coding-agent,evals,server,tui}`,
+`packages/{agent,ai,coding-agent,evals,protocol,server,tui}`,
 `packages/storage/sqlite-node`, and the extension examples under
 `packages/coding-agent/examples/extensions/`.
 
@@ -55,6 +55,7 @@ and `CONTRIBUTING.md` for those.
 | pi-ai (`packages/ai`) | `core`, `providers` |
 | pi-coding-agent (`packages/coding-agent`) | `core`, `modes`, `extensions` |
 | pi-evals (`packages/evals`) | `evals` |
+| pi-protocol (`packages/protocol`) | `protocol` |
 | pi-server (`packages/server`) | `server` |
 | pi-storage-sqlite-node (`packages/storage/sqlite-node`) | `storage` |
 | pi-tui (`packages/tui`) | `rendering`, `components` |

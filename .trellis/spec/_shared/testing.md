@@ -64,6 +64,7 @@ registration-tracking pattern.
 | `packages/coding-agent/vitest.config.ts` | Merges the base config, forces `PI_OFFLINE=1`; opt back in with `allowNetwork()` from `test/test-network-env.ts` |
 | `packages/agent/vitest.harness.config.ts` | Harness-only run (`test/harness/**/*.test.ts`) with v8 coverage over `src/harness/**/*.ts`, `src/agent.ts`, `src/agent-loop.ts` |
 | `packages/tui/vitest.config.ts` | `include` is limited to `test/wrap-ansi.test.ts`; every other TUI test must be named explicitly on the command line |
+| `packages/protocol/vitest.config.ts` | Standalone: node environment, `globals: true`, dot reporter. It does not merge `vitest.base.ts`, because the package has no `@earendil-works/*` dependency to alias |
 
 ### Interactive TUI verification uses tmux
 
