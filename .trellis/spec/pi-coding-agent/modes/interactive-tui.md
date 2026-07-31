@@ -9,12 +9,12 @@ Working in `packages/coding-agent/src/modes/interactive/**`
 
 ### One `InteractiveMode` class composes `pi-tui` `Container`s
 
-`InteractiveMode` (`interactive-mode.ts:345`) owns the entire screen tree as
+`InteractiveMode` (`interactive-mode.ts:346`) owns the entire screen tree as
 `Container` fields (`chatContainer`, `statusContainer`, `editorContainer`,
 `headerContainer`, `widgetContainerAbove`/`Below`, ...) built from
 `@earendil-works/pi-tui` primitives, plus one `KeybindingsManager` instance
 shared with custom editors, selectors, and extension UI
-(`interactive-mode.ts:362`, `494`). There is no per-feature controller class;
+(`interactive-mode.ts:363`, `495`). There is no per-feature controller class;
 new interactive features are new private state plus new methods on this one
 class, or a new `Component` under `components/`.
 
@@ -30,16 +30,16 @@ export function createInteractiveTui(options: InteractiveTuiOptions): TUI {
 }
 ```
 
-(`interactive-mode.ts:337-343`.) `TuiAltScreen` (alternate screen buffer,
+(`interactive-mode.ts:338-344`.) `TuiAltScreen` (alternate screen buffer,
 `--alt`) versus `TuiMainScreen` (default inline TUI) is selected by a boolean
 option, not autodetected from the terminal.
 
 ### Session rebind mirrors print/RPC mode, without a shared base class
 
 `InteractiveMode` installs `runtimeHost.setRebindSession(...)`
-(`interactive-mode.ts:477`), which calls `session.bindExtensions(...)`
-(`interactive-mode.ts:1665`) and then `session.subscribe(...)`
-(`interactive-mode.ts:2876`) to re-attach the TUI whenever the current
+(`interactive-mode.ts:478`), which calls `session.bindExtensions(...)`
+(`interactive-mode.ts:1666`) and then `session.subscribe(...)`
+(`interactive-mode.ts:2881`) to re-attach the TUI whenever the current
 `AgentSession` changes (`/new`, `/fork`, session switch). `print-mode.ts` and
 `rpc-mode.ts` implement the identical rebind → `bindExtensions` →
 `subscribe` sequence against the same `AgentSessionRuntime`
@@ -52,8 +52,8 @@ convention across the three modes, not by inheritance.
 `app.tools.expand`) and a `KEYBINDINGS` default map merged with
 `TUI_KEYBINDINGS` from `@earendil-works/pi-tui`. `interactive-mode.ts` checks
 a pressed key against a registered action with
-`matchesKey(data, shortcutStr as KeyId)` (`interactive-mode.ts:1863`), and
-`KeybindingsManager.create()` (`interactive-mode.ts:494`) loads user
+`matchesKey(data, shortcutStr as KeyId)` (`interactive-mode.ts:1868`), and
+`KeybindingsManager.create()` (`interactive-mode.ts:495`) loads user
 overrides from `~/.pi/agent/keybindings.json`.
 `packages/coding-agent/docs/keybindings.md` documents every id and its
 default; `migrateKeybindingsConfig` (invoked from `src/migrations.ts`)

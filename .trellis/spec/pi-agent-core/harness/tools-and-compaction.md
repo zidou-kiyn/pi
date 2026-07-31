@@ -59,7 +59,7 @@ repeating the numbers (`tools/read.ts`, `tools/bash.ts`). `tools/edit.ts`
 
 ### Compaction: prepare (pure) → hook → generate → persist
 
-`AgentHarness.compact()` (`agent-harness.ts:736`) runs a fixed sequence:
+`AgentHarness.compact()` (`agent-harness.ts:783`) runs a fixed sequence:
 `session.getBranch()` → `prepareCompaction()` (`compaction/compaction.ts:640`,
 pure, returns `Result<CompactionPreparation | undefined, CompactionError>`) →
 the `session_before_compact` hook, which may cancel or supply a ready

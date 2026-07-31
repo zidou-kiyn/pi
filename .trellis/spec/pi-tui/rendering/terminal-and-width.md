@@ -12,18 +12,18 @@ rendering strategy, or image-line detection: `packages/tui/src/utils.ts`,
 
 ### One width function, no duplication
 
-`graphemeWidth()` (`packages/tui/src/utils.ts:167`) is the only place cell
-width is computed per grapheme. `visibleWidth()` (`utils.ts:216`),
-`truncateToWidth()` (`utils.ts:1007`), `wrapTextWithAnsi()` (`utils.ts:786`),
+`graphemeWidth()` (`packages/tui/src/utils.ts:173`) is the only place cell
+width is computed per grapheme. `visibleWidth()` (`utils.ts:239`),
+`truncateToWidth()` (`utils.ts:1030`), `wrapTextWithAnsi()` (`utils.ts:809`),
 `sliceWithWidth()`, and `extractSegments()` all route through it via
 `Intl.Segmenter` grapheme iteration. Do not hand-roll a second width
 calculation; add a case to `graphemeWidth()` instead.
 
 Special cases baked into `graphemeWidth()`:
 
-- Tabs are fixed width 3 (`utils.ts:168`), matching
+- Tabs are fixed width 3 (`utils.ts:174`), matching
   `normalizeTerminalOutput()` which expands `\t` to three spaces
-  (`utils.ts:355`) so tab stops in the real terminal cannot desync layout.
+  (`utils.ts:378`) so tab stops in the real terminal cannot desync layout.
 - Regional indicator singletons (`U+1F1E6`-`U+1F1FF`) are forced to width 2
   even when isolated, because terminals render a lone flag half as
   full-width during streaming — proven by
@@ -33,11 +33,11 @@ Special cases baked into `graphemeWidth()`:
   ASCII/CJK text never pays for emoji detection.
 - Trailing halfwidth/fullwidth forms and Thai/Lao AM vowels that segment
   with a base character add their own width on top of the base
-  (`utils.ts:198-208`).
+  (`utils.ts:213-231`).
 
 ### ANSI/OSC/APC parsing has one entry point
 
-`extractAnsiCode()` (`utils.ts:382`) recognizes CSI (`ESC [ ... m/G/K/H/J`),
+`extractAnsiCode()` (`utils.ts:405`) recognizes CSI (`ESC [ ... m/G/K/H/J`),
 OSC (`ESC ] ...` terminated by BEL or `ESC \`), and APC (`ESC _ ...`, used
 for `CURSOR_MARKER` in `tui.ts`) sequences. Every width/truncate/wrap/slice
 helper calls this before treating a character as visible text. New escape
@@ -127,7 +127,7 @@ capability gap on other platforms/archs, not a bug to "fix" by throwing.
 
 | Anti-pattern | Why | Evidence |
 |---|---|---|
-| Computing width with `.length` or a third-party string-width call elsewhere | Diverges from `graphemeWidth()` special cases (tabs, regional indicators, CJK trailing forms) | `utils.ts:167-210` |
+| Computing width with `.length` or a third-party string-width call elsewhere | Diverges from `graphemeWidth()` special cases (tabs, regional indicators, CJK trailing forms) | `utils.ts:173-234` |
 | Using `line.startsWith(prefix)` to detect image escape sequences | Exact bug this package already fixed | `bug-regression-isimageline-startswith-bug.test.ts` |
 | Compositing overlay text without `strict` boundary handling | Splits a wide grapheme and renders a corrupted half-character | `regression-overlay-cjk-boundary.test.ts` |
-| Adding a second ANSI/OSC scanner instead of extending `extractAnsiCode` | Two parsers drift; only one is used by the tracker that prevents style bleed | `utils.ts:382`, `tui-overlay-style-leak.test.ts` |
+| Adding a second ANSI/OSC scanner instead of extending `extractAnsiCode` | Two parsers drift; only one is used by the tracker that prevents style bleed | `utils.ts:405`, `tui-overlay-style-leak.test.ts` |

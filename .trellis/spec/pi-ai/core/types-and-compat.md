@@ -59,7 +59,7 @@ compat?: TApi extends "openai-completions"
 				: never;
 ```
 
-(`types.ts:777-786`). Compat flags override auto-detection: most `OpenAICompletionsCompat`
+(`types.ts:779-788`). Compat flags override auto-detection: most `OpenAICompletionsCompat`
 fields default to "auto-detected from baseUrl" per their doc comments (e.g.
 `supportsDeveloperRole`), and the generated catalog sets fields explicitly where
 auto-detection is not enough — `packages/ai/test/providers.test.ts` asserts
@@ -70,7 +70,7 @@ auto-detection entry in the generated catalog.
 
 ### Chat and image types are deliberately separate
 
-`ImagesModel<TApi>` (`types.ts:788-793`) is `Omit<Model<Api>, "api" | "provider" | "reasoning"
+`ImagesModel<TApi>` (`types.ts:790-795`) is `Omit<Model<Api>, "api" | "provider" | "reasoning"
 | "contextWindow" | "maxTokens" | "compat">` plus its own `api`/`provider`/`output`.
 `ImagesApi`/`ImagesProviderId` do not overlap with `Api`/`ProviderId`. `ImagesOptions`
 (`types.ts:255-301`) also duplicates most of `StreamOptions`' fields one by one rather than

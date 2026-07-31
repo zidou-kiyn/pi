@@ -14,7 +14,7 @@ Covers the terminal renderers and their support modules: `packages/tui/src/tui.t
 3. If it touches width accounting, find the regression test that already
    covers the character class you are changing (CJK, emoji, regional
    indicators, tabs, ANSI) before editing — see `terminal-and-width.md`.
-   `graphemeWidth` in `packages/tui/src/utils.ts:167` is the single source of
+   `graphemeWidth` in `packages/tui/src/utils.ts:173` is the single source of
    truth; do not duplicate width logic elsewhere.
 4. Every `Component.render(width)` implementation must return lines whose
    `visibleWidth(line) <= width`; `TuiMainScreen`/`TuiAltScreen` throw

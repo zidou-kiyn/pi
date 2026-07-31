@@ -103,13 +103,13 @@ target.
 ### Writes during an active operation are deferred, not dropped
 
 `AgentHarness` persists immediately while `phase === "idle"` (the `phase` field
-is declared at `agent-harness.ts:179`; the branches that test it are at `:891`,
-`:910`, `:937`, `:966`) and otherwise pushes a `PendingSessionWrite`
+is declared at `agent-harness.ts:181`; the branches that test it are at `:951`,
+`:973`, `:1006`, `:1040`) and otherwise pushes a `PendingSessionWrite`
 (`types.ts:555` — session entry shapes minus `id`/`parentId`/`timestamp`).
-`flushPendingSessionWrites()` (`agent-harness.ts:512`) drains the queue in FIFO
+`flushPendingSessionWrites()` (`agent-harness.ts:554`) drains the queue in FIFO
 order, shifting each entry only after it is persisted, so a mid-flush failure
 loses nothing. Flushes happen in `handleAgentEvent`
-(`agent-harness.ts:538`) at `turn_end` and `agent_end`, in `prepareNextTurn`,
+(`agent-harness.ts:580`) at `turn_end` and `agent_end`, in `prepareNextTurn`,
 and in the `finally` of `executeTurn`. Ordering is asserted by
 `test/harness/agent-harness.test.ts` ("orders pending listener session writes
 after agent-emitted messages"): `["user", "assistant", "custom"]`.
@@ -142,5 +142,5 @@ after agent-emitted messages"): `["user", "assistant", "custom"]`.
 | Adding an entry type without touching all storages, the compaction cut-point switch, and `convertToLlm` | Silent context loss for that entry kind | `compaction.ts:328` `findValidCutPoints` enumerates every entry type explicitly |
 | Adding a `Session` test to one backend only | Backend drift; the parity suite exists to prevent it | `session.test.ts` `runSessionSuite` |
 | Unwrapping a filesystem `Result` outside `getFileSystemResultOrThrow` | Loses the `not_found` → `SessionError` mapping | `repo-utils.ts:24` |
-| Writing to the session directly while the harness is busy | Splits an assistant tool-call message from its tool results | `agent-harness.ts:512`; ordering test in `agent-harness.test.ts` |
+| Writing to the session directly while the harness is busy | Splits an assistant tool-call message from its tool results | `agent-harness.ts:554`; ordering test in `agent-harness.test.ts` |
 | Importing `node:fs` into `src/harness/session/` | Breaks the browser bundle check | storages take a `Pick<FileSystem, ...>`; enforced by `scripts/check-browser-smoke.mjs` |
