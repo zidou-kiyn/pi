@@ -88,3 +88,25 @@ Re-synced .trellis/spec with upstream merge 2975d1c9; added the language and ato
 
 - Re-run this sync procedure after the next upstream merge; the five-commit slicing is the reusable shape
 - Consider an anchor-drift verification script as its own task
+
+
+## Session 2: personal pi preset package
+
+**Date**: 2026-08-01
+**Task**: personal pi preset package
+**Package**: pi-agent-core
+**Branch**: `main`
+
+### Summary
+
+Shipped github.com/zidou-kiyn/pi-preset: a pi package with the vibrant-footer status bar, a diff-first /preset-sync command (13 packages, 2 web-search keys, footer demote, Maple Mono NF CN install), and a secret scanner. All 11 ACs verified with recorded evidence. Rejected in-repo hosting on evidence: pi git sources have no subdirectory support (parseGitUrl carries only host/path/ref) and clone has no --depth. Adversarial review found 6 defects (file mode dropped on atomic write, symlink replaced, fc-list false-negative causing a permanently non-empty plan and repeated 159MB downloads, no-op settings write, bare package name misidentified as npm, git host case) - all fixed. One spec lesson codified: settings-manager's modifiedFields re-merge writes array fields wholesale from the in-memory snapshot.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `133c7f5f` | (see git log) |
+
+### Status
+
+[OK] **Completed**

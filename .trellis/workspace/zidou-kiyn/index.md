@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 1
-- **Last Active**: 2026-07-31
+- **Total Sessions**: 2
+- **Last Active**: 2026-08-01
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~90 | Active |
+| `journal-1.md` | ~112 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 2 | 2026-08-01 | personal pi preset package | `133c7f5f` | `main` |
 | 1 | 2026-07-31 | 01-sync-spec-upstream completed | `a6ea3c2f`, `d2e4157f`, `a573b8de`, `30475433`, `989a0731`, `63eb6cbd`, `f1340b23`, `a9537d93` | `main` |
 <!-- @@@/auto:session-history -->
 
