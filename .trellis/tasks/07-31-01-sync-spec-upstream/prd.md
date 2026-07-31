@@ -107,7 +107,7 @@ Affected spec and config:
 | `AgentHarness` task-tracking rewrite: `activeTasks` / `TrackedTaskKind` / `startOperation` / `waitForTasks` / `isShutdown` / `assertNotShutDown` replace `runPromise` / `runAbortController` | `packages/agent/src/harness/agent-harness.ts` | `pi-agent-core/harness/session-and-storage.md` |
 | `graphemeWidth` gains terminal spacing-mark rules (`terminalSpacingMarkRegex`, `markCharRegex`, `nonPrintingCharRegex`) | `packages/tui/src/utils.ts` | `pi-tui/rendering/terminal-and-width.md` |
 | `packages/tui/src/index.ts` newly exports `Marked` / `Token` / `Tokens` | `packages/tui/src/index.ts` | `pi-tui/rendering/index.md` or `components/` |
-| Bedrock structured error metadata, openai-completions `tool_choice` | `packages/ai/src/api/{bedrock-converse-stream,openai-completions}.ts`, `src/types.ts` | `pi-ai/core/types-and-compat.md`, `pi-ai/providers/` |
+| Bedrock structured failure diagnostics (`bedrock_response_failure`), and the new `supportsFinishReason` compat flag — the merge added no `tool_choice` code change; `openai-completions-tool-choice.test.ts` is only where the `supportsFinishReason` cases landed | `packages/ai/src/api/{bedrock-converse-stream,openai-completions}.ts`, `src/types.ts:529`, `src/utils/diagnostics.ts` | `pi-ai/core/types-and-compat.md`, `pi-ai/providers/adding-a-provider.md` |
 
 ### F4 — Language rule
 
@@ -162,8 +162,8 @@ the Language Rule in `_shared/index.md`.
 - [ ] **AC5** — `pi-tui/rendering/terminal-and-width.md` documents the
       terminal spacing-mark rules in `graphemeWidth`, and the new
       `Marked` / `Token` / `Tokens` exports are recorded in a `pi-tui` doc.
-- [ ] **AC6** — `pi-ai` docs cover Bedrock structured error metadata and
-      openai-completions `tool_choice`.
+- [ ] **AC6** — `pi-ai` docs cover Bedrock structured failure diagnostics and
+      the `supportsFinishReason` compat flag.
 - [ ] **AC7** — `python3 ./.trellis/scripts/get_context.py --mode packages`
       lists `pi-protocol` with its layer, and the printed spec files exist.
 - [ ] **AC8** — `.trellis/spec/pi-protocol/**` anchors resolve to real
