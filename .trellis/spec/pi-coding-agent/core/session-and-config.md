@@ -50,6 +50,21 @@ private static loadFromStorage(storage: SettingsStorage, scope: SettingsScope, p
 `proper-lockfile` and track `modifiedFields`/`modifiedProjectFields` for
 partial re-merge after external file changes.
 
+That re-merge protects **only unmodified fields, and within a modified field
+only its untouched nested keys**. `persistScopedSettings`
+(`settings-manager.ts:578-606`) re-reads the file inside the lock, then for
+each entry of `modifiedFields` either merges per nested key (when
+`modifiedNestedFields` has that field and the value is a non-null object) or
+falls through to `mergedSettings[field] = value` — the whole in-memory value,
+written over whatever the file now holds. Array fields always take that second
+branch. So an external write to `packages[]` survives only until the session
+itself modifies `packages` (`setPackages()`, `settings-manager.ts:973-976`,
+reached from `togglePackageResource`, `config-selector.ts:583`), at which point
+the session's startup-era array is persisted and the external entries vanish
+silently. Holding the same lock does not help; the staleness is in the
+snapshot, not the write. An out-of-process writer must therefore require a
+restart before the user touches `/config` or `pi install` in that session.
+
 ### Session files are append-only JSONL, versioned and migrated in place
 
 `session-manager.ts` defines `SessionHeader` plus a `SessionEntry` union
@@ -100,7 +115,11 @@ the resulting `CompactionEntry` and reloads session state.
   desyncs cwd-scoped state.
 - Writing `settings.json` directly instead of through `SettingsManager`:
   loses the file lock, the `modifiedFields` merge tracking, and
-  `migrateSettings()` upgrade handling.
+  `migrateSettings()` upgrade handling. Extensions have no access to
+  `SettingsManager` (it is absent from `ExtensionAPI` and
+  `ExtensionCommandContext` in `core/extensions/types.ts`), so an extension
+  that must edit settings can only write the file and then tell the user to
+  restart — see the array-field caveat in "Settings layering" above.
 - Adding a new `SessionEntry` variant without bumping
   `CURRENT_SESSION_VERSION` and adding a `migrateVxToVy` step —
   `migrateToCurrentVersion` must be able to read every past on-disk shape.
