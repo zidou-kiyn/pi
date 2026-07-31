@@ -1,0 +1,5 @@
+{"file": ".agents/skills/trellis-spec-bootstrap/references/spec-writing.md", "reason": "Required shape and content standards for every spec file"}
+{"file": ".agents/skills/trellis-spec-bootstrap/references/repository-analysis.md", "reason": "How to derive spec content from real repository structure"}
+{"file": "AGENTS.md", "reason": "Authoritative global project rules; _shared must not contradict it"}
+{"file": "CONTRIBUTING.md", "reason": "Minimal-core / extension-first philosophy behind pi-coding-agent specs"}
+{"file": ".trellis/spec/guides/index.md", "reason": "Existing shared guides; _shared links from here, content stays intact"}

@@ -1,0 +1,4 @@
+{"file": ".agents/skills/trellis-spec-bootstrap/SKILL.md", "reason": "Done criteria: no placeholders, index matches files, non-applicable sections removed"}
+{"file": ".agents/skills/trellis-spec-bootstrap/references/spec-writing.md", "reason": "Final pass checklist and evidence requirements"}
+{"file": "AGENTS.md", "reason": "Verify _shared restates project rules accurately"}
+{"file": ".trellis/spec/guides/index.md", "reason": "Verify AI-review false-positive rules and the added _shared pointer"}
