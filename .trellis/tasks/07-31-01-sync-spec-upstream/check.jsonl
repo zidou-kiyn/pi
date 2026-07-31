@@ -1,0 +1,6 @@
+{"file": ".trellis/tasks/07-31-01-sync-spec-upstream/prd.md", "reason": "AC1-AC10 are the pass/fail contract for this review"}
+{"file": ".trellis/tasks/07-31-01-sync-spec-upstream/implement.md", "reason": "Validation section holds the exact commands to re-run (anchor spot-checks, get_context, grep gates)"}
+{"file": ".trellis/spec/_shared/index.md", "reason": "Verify Language Rule wording, Scope list, and Package Layers table include pi-protocol (AC9)"}
+{"file": ".trellis/spec/_shared/testing.md", "reason": "Verify the vitest config table row for packages/protocol (AC9)"}
+{"file": ".trellis/spec/_shared/dependencies-and-git.md", "reason": "Verify the delivered commits actually match the atomic slicing rule (one intent each, no mixed fix+docs)"}
+{"file": ".trellis/tasks/07-31-01-sync-spec-upstream/design.md", "reason": "D2 placement table and D3 layer structure define where content is expected to land"}

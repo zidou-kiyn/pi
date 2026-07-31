@@ -1,0 +1,10 @@
+{"file": ".trellis/spec/_shared/index.md", "reason": "Language Rule (English-only artifacts) and the Scope + Package Layers rows that must gain pi-protocol"}
+{"file": ".trellis/spec/_shared/dependencies-and-git.md", "reason": "Atomic commit slicing rules that govern the five-commit plan in design.md D5"}
+{"file": ".trellis/spec/_shared/testing.md", "reason": "vitest config table must gain packages/protocol/vitest.config.ts; also the never-run-raw-vitest rule the new layer must restate"}
+{"file": ".trellis/spec/pi-storage-sqlite-node/storage/index.md", "reason": "Style and density reference for the new pi-protocol layer index"}
+{"file": ".trellis/spec/pi-agent-core/harness/session-and-storage.md", "reason": "Largest rewrite target: stale runPromise/runAbortController prose plus 7 drifted agent-harness.ts anchors"}
+{"file": ".trellis/spec/pi-coding-agent/extensions/extension-api.md", "reason": "11 drifted anchors, plus registerMarkdownTransformer and the pi-manifest.ts extraction to document"}
+{"file": ".trellis/spec/pi-tui/rendering/terminal-and-width.md", "reason": "6 drifted utils.ts anchors and the new graphemeWidth spacing-mark rules"}
+{"file": ".trellis/spec/pi-coding-agent/modes/interactive-tui.md", "reason": "6 drifted interactive-mode.ts anchors; note the file now lives at src/modes/interactive/interactive-mode.ts"}
+{"file": ".trellis/tasks/07-31-01-sync-spec-upstream/design.md", "reason": "Anchor repair method, doc placement table, pi-protocol layer structure, commit slicing"}
+{"file": ".trellis/tasks/07-31-01-sync-spec-upstream/implement.md", "reason": "Ordered checklist, validation commands, risky files"}
