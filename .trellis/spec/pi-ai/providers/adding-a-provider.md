@@ -86,6 +86,22 @@ ambient credentials use a helper predicate instead of a single env var, e.g.
 for deterministic, non-network tests of the surrounding `Models`/`createProvider()` machinery,
 as the `fauxProvider` describe block in `test/providers.test.ts` does.
 
+### Quirks become compat flags; failures become diagnostics
+
+A provider that deviates from its API's baseline gets a named field on the
+matching `*Compat` interface in `packages/ai/src/types.ts`, defaulted in that
+API's `detectCompat` and merged in `getCompat`. `supportsFinishReason` is the
+working example. Do not branch on `baseUrl`, provider id, or model id inside a
+stream loop: a custom `createProvider()` model has no catalog entry, so only a
+compat field is reachable for it.
+
+When a request fails, attach structured metadata with
+`appendAssistantMessageDiagnostic` (`packages/ai/src/utils/diagnostics.ts:40`)
+and leave `errorMessage` byte-identical — retry classification matches on that
+string. `packages/ai/src/api/bedrock-converse-stream.ts:403` is the reference
+implementation. Both rules are documented with their evidence in
+[`../core/types-and-compat.md`](../core/types-and-compat.md).
+
 ### Downstream wiring outside this package
 
 Coding-agent needs its own default model id in `defaultModelPerProvider`

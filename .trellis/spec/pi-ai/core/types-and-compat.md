@@ -68,6 +68,51 @@ while `getBuiltinModel("openai", "gpt-4o").compat?.supportsOpenAIGrammarTools` i
 A custom `createProvider()` model sets `compat` directly, since it has no baseUrl-based
 auto-detection entry in the generated catalog.
 
+### A compat flag exists so a provider quirk never becomes a code branch
+
+`supportsFinishReason` (`types.ts:529`) is the current example of the shape a
+new flag must take. Default `true` in `detectCompat`
+(`api/openai-completions.ts:1451`), merged with the model's override in
+`getCompat` (`:1501`), and read at exactly two places in the stream tail
+(`:574`, `:580`): when it is `false` and the stream ended without a
+`finish_reason`, `stopReason` is inferred as `toolUse` if any content block is
+a tool call and `stop` otherwise, instead of throwing
+`"Stream ended without finish_reason"`. `openai-completions-tool-choice.test.ts`
+asserts both directions — "errors when a stream ends after only null
+finish_reason chunks" for the default, "accepts streams without finish_reason
+when compat disables it" for the override. A quirk handled by sniffing the
+baseUrl inside the stream loop instead of a named compat field is not
+overridable by a custom provider and is rejected on that basis.
+
+### Provider failures carry structured diagnostics, and `errorMessage` stays byte-identical
+
+`AssistantMessage.diagnostics` (`types.ts:407`) is an append-only list written
+only through `appendAssistantMessageDiagnostic`
+(`utils/diagnostics.ts:40`). Bedrock is the reference implementation:
+`appendBedrockFailureDiagnostic` (`api/bedrock-converse-stream.ts:403`) emits a
+`bedrock_response_failure` entry whose `details` may contain `status`,
+`errorCode`, and `requestId`.
+
+Three rules are encoded there and apply to any provider that adds diagnostics:
+
+- **Never touch `errorMessage`.** `isRetryableAssistantError` matches against
+  that string, so structured metadata is added *alongside* it, never folded
+  into it.
+- **Omit unknown fields; never guess.** A modeled mid-stream exception arrives
+  as a bare object with no HTTP metadata, so `responseRequestId` is captured
+  outside the `try` (`api/bedrock-converse-stream.ts:225`) purely so the catch
+  can still correlate the request. If nothing is known, no diagnostic is
+  emitted at all.
+- **Drop over-long values instead of truncating.**
+  `normalizeDiagnosticValue` (`:381`) rejects anything over 200 characters — a
+  truncated request id is not a request id.
+
+`extractBedrockErrorCode` (`:393`) reads `error.name` and requires an
+`Exception` suffix, because the SDK puts the modeled code there for both
+service exceptions and unmodeled stream errors, while transport failures use
+names like `TimeoutError`. `packages/ai/test/bedrock-error-metadata.test.ts` is
+the contract.
+
 ### Chat and image types are deliberately separate
 
 `ImagesModel<TApi>` (`types.ts:790-795`) is `Omit<Model<Api>, "api" | "provider" | "reasoning"
@@ -82,7 +127,11 @@ extending it — there is no shared base interface between chat and image reques
   `*Compat` interfaces, `ImagesModel`
 - `packages/ai/src/models.ts` — `hasApi()`, `ApiStreamOptions<T>` usage inside
   `Provider.stream()`
+- `packages/ai/src/utils/diagnostics.ts` — `AssistantMessageDiagnostic`,
+  `appendAssistantMessageDiagnostic`
 - `packages/ai/test/providers.test.ts` — asserts generated `compat` values on built-in models
+- `packages/ai/test/bedrock-error-metadata.test.ts` — structured failure metadata contract
+- `packages/ai/test/openai-completions-tool-choice.test.ts` — `supportsFinishReason` both directions
 - `packages/ai/test/model-catalog-types.test.ts` — type-level catalog assertions
 
 ## Anti-Patterns

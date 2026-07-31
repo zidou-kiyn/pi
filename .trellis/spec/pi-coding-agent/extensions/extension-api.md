@@ -79,6 +79,56 @@ standalone tool definitions" when a tool is assigned to a variable or pushed
 into an array (`customTools`) instead of passed inline; it is an identity
 cast.
 
+### A package's `pi` manifest is read through one validating reader
+
+`readPiManifest(packageJsonPath)` (`core/pi-manifest.ts:16`) is the only way to
+read the `pi` block out of an installed package's `package.json`, and it is
+validation, not just parsing: a field is copied into the returned `PiManifest`
+(`core/pi-manifest.ts:3` — `extensions`, `skills`, `prompts`, `themes`) only
+when it is an array whose every element is a string. Anything else — a bad
+JSON file, a non-object `pi`, or a field like `"skills": "./skills"` — is
+dropped silently while the *valid* sibling fields still load;
+`test/suite/regressions/7187-malformed-package-manifest.test.ts` asserts
+exactly that asymmetry. Every read in `package-manager.ts` goes through it
+(`:533`, `:2095`, `:2131`, `:2200`); do not re-parse `package.json` for `pi`
+resources anywhere else, and do not make a malformed manifest throw — one bad
+installed package must not break resource discovery for the rest.
+
+### `registerMarkdownTransformer` is the only text-level render hook
+
+```ts
+registerMarkdownTransformer(transformer: MarkdownTransformer): void;
+```
+
+(`types.ts:1287`.) `MarkdownTransformer` is
+`(markdown: string, context: MarkdownTransformContext) => string`
+(`types.ts:1148`), with `context` carrying `messageType`
+(`"user" | "assistant" | "assistant-thinking"`), `isStreaming`, and
+`availableWidth` (`types.ts:1142`). Unlike `registerMessageRenderer`, which
+replaces a whole component, this rewrites the Markdown *source* before the
+renderer parses it, so themes, wrapping, and width accounting keep working.
+
+One transformer per extension: the API assigns to
+`extension.markdownTransformer` (`loader.ts:296`, field declared at
+`types.ts:1689`), so a second call replaces the first. `ExtensionRunner`
+collects them across extensions in load order with `getMarkdownTransformers()`
+(`runner.ts:589`).
+
+Application is chained and failure-tolerant:
+`createMarkdownTransform(messageType, isStreaming, transformers)`
+(`markdown-transform.ts:3`) closes over the list and applies them in order,
+feeding each transformer the previous one's output, keeping the result only
+when it is a string, and swallowing a throwing transformer so the remaining
+ones still run. `InteractiveMode`
+reads them once per render through `getMarkdownTransformers()`
+(`interactive-mode.ts:1817`) and hands them to `UserMessageComponent`
+(`user-message.ts:53`) and `AssistantMessageComponent`
+(`assistant-message.ts:112`), which set the closure as
+`MarkdownOptions.transform` on the `pi-tui` `Markdown` component — the TUI-side
+half of this contract is documented in
+[`../../pi-tui/components/component-model.md`](../../pi-tui/components/component-model.md).
+This hook is interactive-mode only; print and RPC mode never call it.
+
 ### Inline (path-less) extensions get synthetic `<inline:N>` identities
 
 Extensions passed as `extensionFactories` (plain functions, used by the SDK
@@ -97,6 +147,8 @@ asserts both forms.
 - `packages/coding-agent/src/core/extensions/types.ts`
 - `packages/coding-agent/src/core/resource-loader.ts`
 - `packages/coding-agent/src/core/package-manager.ts`
+- `packages/coding-agent/src/core/pi-manifest.ts`
+- `packages/coding-agent/src/modes/interactive/components/markdown-transform.ts`
 - `packages/coding-agent/examples/extensions/permission-gate.ts`
 - `packages/coding-agent/examples/extensions/README.md`
 - `packages/coding-agent/docs/extensions.md`
@@ -105,6 +157,7 @@ asserts both forms.
 - `packages/coding-agent/test/suite/regressions/6260-inline-extension-naming.test.ts`
 - `packages/coding-agent/test/suite/regressions/2835-tools-allowlist-filters-extension-tools.test.ts`
 - `packages/coding-agent/test/suite/regressions/3592-no-builtin-tools-keeps-extension-tools.test.ts`
+- `packages/coding-agent/test/suite/regressions/7187-malformed-package-manifest.test.ts`
 
 ## Anti-Patterns
 
@@ -120,3 +173,10 @@ asserts both forms.
 - Re-implementing a project-trust check inside an extension instead of
   relying on `DefaultResourceLoader`, which already withholds project-local
   extensions until the project is trusted.
+- Parsing a package's `package.json` `pi` block directly instead of calling
+  `readPiManifest` — skips the per-field array-of-strings validation and
+  reintroduces issue #7187.
+- Making `registerMarkdownTransformer` throw to signal "leave this text
+  alone" — throws are swallowed; return the input string unchanged instead.
+- Registering a Markdown transformer and expecting it in print or RPC output
+  — only the interactive transcript applies it.

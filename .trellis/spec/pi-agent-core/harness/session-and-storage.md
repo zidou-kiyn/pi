@@ -114,6 +114,51 @@ and in the `finally` of `executeTurn`. Ordering is asserted by
 `test/harness/agent-harness.test.ts` ("orders pending listener session writes
 after agent-emitted messages"): `["user", "assistant", "custom"]`.
 
+### Every async path is a tracked task, split into `operation` and `mutation`
+
+`AgentHarness` does not hold a single run promise. It keeps
+`activeTasks: Map<Promise<void>, TrackedTaskKind>` (`agent-harness.ts:183`)
+where `TrackedTaskKind` is `"operation" | "mutation"` (`agent-harness.ts:140`).
+`track()` (`agent-harness.ts:357`) registers a promise, awaits the body, and
+deletes the entry in `finally`; `waitForTasks(kind?)` (`agent-harness.ts:371`)
+loops until no task of that kind remains, re-reading the map each pass so a
+task started while awaiting is still awaited.
+
+The split is the whole point, and it is asserted:
+
+- **`operation`** — one turn, compaction, or tree navigation. Created by
+  `startOperation()` (`agent-harness.ts:337`), which owns the
+  `activeAbortController` and hands back `{ signal, finish }`. `prompt`,
+  `skill`, `promptFromTemplate`, `compact`, and `navigateTree` each open one
+  and call `finish()` in `finally`. `waitForIdle()` (`agent-harness.ts:1149`)
+  waits for `"operation"` only.
+- **`mutation`** — an idle-time session write: `appendMessage`, `setModel`,
+  `setThinkingLevel`, `setTools`, `setActiveTools`. These wrap their body in
+  `track("mutation", ...)`, so an in-flight write does **not** make the harness
+  look busy — `agent-harness.test.ts` "does not treat concurrent mutations as
+  active operations" asserts `waitForIdle()` resolves while a blocked
+  `appendMessage` is still writing.
+
+`shutdown()` (`agent-harness.ts:1107`) is the only caller of `waitForTasks()`
+with no kind filter: it sets `isShutdown`, clears
+`pendingSessionWrites`/`steerQueue`/`followUpQueue`/`nextTurnQueue`, aborts the
+active operation, and then awaits *both* kinds — "awaits concurrent idle
+session mutations before shutdown resolves" proves all three queued writes
+still land. It is idempotent through a memoized `shutdownPromise`, and it never
+touches the durable session ("shuts down an idle harness without modifying its
+durable session").
+
+After shutdown, every public entry point rejects through
+`assertNotShutDown()` (`agent-harness.ts:229`), which throws
+`AgentHarnessError("invalid_state")`. It is also re-checked *mid-operation* —
+after `before_agent_start`, after compaction produces a summary, and before
+`session.moveTo` — so a shutdown racing an in-flight turn cannot persist its
+result ("aborts and awaits active compaction without persisting its result",
+"aborts and awaits active tree navigation without moving the session leaf").
+A new public method that mutates harness state or the session must call
+`assertNotShutDown()` first and, if it writes to the session while idle, run
+inside `track("mutation", ...)`.
+
 ## Reference Files
 
 - `packages/agent/src/harness/types.ts` — entry union, `SessionStorage`,
@@ -127,6 +172,8 @@ after agent-emitted messages"): `["user", "assistant", "custom"]`.
 - `packages/agent/src/harness/messages.ts` — summary/custom message factories,
   `convertToLlm`
 - `packages/storage/sqlite-node/src/sqlite/storage/index.ts` — third backend
+- `packages/agent/test/harness/agent-harness.test.ts` — shutdown/abort
+  semantics, operation-vs-mutation tracking, pending-write ordering
 - `packages/agent/test/harness/session.test.ts` — `runSessionSuite` parity suite
 - `packages/agent/test/harness/storage.test.ts` — backend contract tests
 - `packages/agent/test/harness/repo.test.ts` — layout, listing, forking
@@ -144,3 +191,6 @@ after agent-emitted messages"): `["user", "assistant", "custom"]`.
 | Unwrapping a filesystem `Result` outside `getFileSystemResultOrThrow` | Loses the `not_found` → `SessionError` mapping | `repo-utils.ts:24` |
 | Writing to the session directly while the harness is busy | Splits an assistant tool-call message from its tool results | `agent-harness.ts:554`; ordering test in `agent-harness.test.ts` |
 | Importing `node:fs` into `src/harness/session/` | Breaks the browser bundle check | storages take a `Pick<FileSystem, ...>`; enforced by `scripts/check-browser-smoke.mjs` |
+| Adding a public harness method without `assertNotShutDown()` | A shut-down harness silently resumes writing to a session its owner abandoned | `agent-harness.ts:229` and its call sites |
+| Registering an idle session write as an `"operation"` task | `waitForIdle()` would block on ordinary metadata writes | `agent-harness.test.ts` "does not treat concurrent mutations as active operations" |
+| Creating a fresh `new AbortController()` inside a long-running harness path | Detaches that work from `abort()`/`shutdown()`; use `startOperation()`'s signal | `agent-harness.ts:337`; `compact` and `navigateTree` both switched to it |

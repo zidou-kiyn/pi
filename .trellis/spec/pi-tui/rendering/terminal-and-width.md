@@ -34,6 +34,22 @@ Special cases baked into `graphemeWidth()`:
 - Trailing halfwidth/fullwidth forms and Thai/Lao AM vowels that segment
   with a base character add their own width on top of the base
   (`utils.ts:213-231`).
+- Terminal spacing marks are counted, ordinary combining marks are not.
+  `terminalSpacingMarkRegex` (`utils.ts:46`) is `\p{Spacing_Mark}` minus
+  `U+1734`, `U+302E`, `U+302F`, plus an explicit list of non-spacing marks
+  legacy wcwidth tables still allocate cells for (`U+065F`, `U+0F7F`, and the
+  Myanmar range `U+102B`-`U+103E`). A cluster made only of such marks returns
+  its code-point count (`utils.ts:179-181`) instead of falling through to the
+  zero-width branch, and inside the trailing-codepoint loop each one adds 1.
+  `markCharRegex` (`utils.ts:43`) matches any `\p{Mark}` and only sets
+  `followsMark`, so an ordinary combining mark stays zero-width but makes a
+  following halfwidth/fullwidth form count;
+  `nonPrintingCharRegex` (`utils.ts:42`) skips format/control/surrogate code
+  points entirely. Four tests in
+  `test/truncate-to-width.test.ts` pin this: Indic conjunct spacing code
+  points, Myanmar marks, zero-width ordinary combining marks, and unchanged
+  CJK/Japanese accounting. Adding a script to the exception list requires a
+  test in that file for both the counted and the still-zero-width case.
 
 ### ANSI/OSC/APC parsing has one entry point
 

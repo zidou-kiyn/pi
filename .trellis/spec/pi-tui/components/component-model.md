@@ -58,6 +58,42 @@ have no cache — their `invalidate()` is a documented no-op
 component has observable per-render cost; do not add empty cache
 scaffolding to new components that do not need it.
 
+### `Markdown` renders source text and exposes one transform seam
+
+`Markdown` (`components/markdown.ts:112`) takes the raw Markdown string plus a
+`MarkdownOptions` bag (`components/markdown.ts:98`). The only hook that
+rewrites content is `MarkdownOptions.transform`
+(`components/markdown.ts:104`):
+
+```ts
+transform?: (markdown: string, availableWidth: number) => string;
+```
+
+It runs at the top of `render()` — after `contentWidth` is computed as
+`width - paddingX * 2`, before the tab normalization and the lexer
+(`components/markdown.ts:161`) — so a transformer sees the exact column budget
+its output will be wrapped into, and everything downstream (theme, wrapping,
+fence handling) still applies to the transformed text.
+
+The render cache keys on the *source* text and `width`
+(`components/markdown.ts:155`), never on the transform result. A transformer
+must therefore be a pure function of `(markdown, availableWidth)`; one that
+depends on wall-clock time or external mutable state will show a stale frame
+until the source or the width changes. `test/markdown.test.ts` "caches
+transformed Markdown by source and available width" pins this: two renders at
+width 80 invoke the transformer once, and only the width change to 60 invokes
+it again.
+
+`packages/coding-agent` drives this seam from its extension API — see
+`registerMarkdownTransformer` in
+[`../../pi-coding-agent/extensions/extension-api.md`](../../pi-coding-agent/extensions/extension-api.md).
+
+For callers that need the token stream rather than rendered lines,
+`packages/tui/src/index.ts:3` re-exports `Marked` and the `Token` / `Tokens`
+types from `marked`. Import them from `@earendil-works/pi-tui` instead of
+adding a direct `marked` dependency, so every consumer parses with the same
+version this package renders with.
+
 ### `Focusable` is required for any component with a cursor
 
 A component that shows a text cursor and needs correct IME candidate-window
@@ -113,15 +149,20 @@ completion source is a new `AutocompleteProvider`, not a change to `Editor`.
 - `packages/tui/src/components/input.ts`, `editor.ts` — `Focusable`,
   `KillRing`/`UndoStack` usage
 - `packages/tui/src/kill-ring.ts`, `undo-stack.ts`, `word-navigation.ts`
+- `packages/tui/src/components/markdown.ts` — `MarkdownOptions.transform`,
+  render cache keys
 - `packages/tui/src/editor-component.ts`, `autocomplete.ts`, `fuzzy.ts`
 - `packages/coding-agent/src/modes/interactive/components/extension-editor.ts`
 - `packages/tui/test/select-list.test.ts`, `input.test.ts`, `editor.test.ts`,
-  `autocomplete.test.ts`, `fuzzy.test.ts`, `word-navigation.test.ts`
+  `autocomplete.test.ts`, `fuzzy.test.ts`, `word-navigation.test.ts`,
+  `markdown.test.ts`
 
 ## Anti-Patterns
 
 | Anti-pattern | Why | Evidence |
 |---|---|---|
+| A `MarkdownOptions.transform` that is not a pure function of `(markdown, availableWidth)` | The render cache keys on source + width, so the stale result is served until one of them changes | `components/markdown.ts:155`; `test/markdown.test.ts` transform caching test |
+| Adding a direct `marked` dependency in a downstream package | Two `marked` versions parse and render differently; `pi-tui` already re-exports `Marked`/`Token`/`Tokens` | `packages/tui/src/index.ts:3` |
 | Adding lifecycle hooks (mount/unmount) or React/DOM vocabulary to a component | Not how this renderer works; `render(width)` is the entire contract | `tui.ts:23-46` |
 | Reimplementing kill/yank or undo inside a new editing component | `KillRing`/`UndoStack` already exist and are shared by `Editor` and `Input` | `kill-ring.ts`, `undo-stack.ts` |
 | Emitting `CURSOR_MARKER` from a container without propagating `focused` to the embedded input | IME candidate window is positioned on the wrong component | `packages/coding-agent/docs/tui.md` "Container Components with Embedded Inputs" |
