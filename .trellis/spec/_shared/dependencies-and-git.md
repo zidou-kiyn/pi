@@ -77,6 +77,45 @@ Forbidden outright — these destroy other sessions' work or bypass the gate:
 On rebase conflicts: resolve only files you modified; if a conflict lands in a
 file you did not touch, abort and ask. Never force push.
 
+### Atomic commits, sliced for review
+
+One commit = one self-contained logical change. The repo is reviewed commit by
+commit, so the unit of work is "what a reviewer must hold in their head at
+once", not "everything I did this session".
+
+A commit qualifies as atomic when all four hold:
+
+1. **Single intent** — its message needs no "and": one fix, one feature slice,
+   one rename, one doc update.
+2. **Self-consistent** — the tree builds and its own tests pass at that commit;
+   never split code from the test or type change that makes it compile.
+3. **Independently revertable** — reverting it undoes exactly one thing and
+   leaves nothing dangling.
+4. **Complete for its intent** — no follow-up commit is required to make it
+   correct.
+
+When a task spans several concerns, land it as a sequence of small,
+strongly-related commits in dependency order. Typical slice boundaries:
+
+| Split along | Example sequence |
+|---|---|
+| Mechanical vs. behavioral | `refactor(tui): extract graphemeWidth helpers` → `fix(tui): handle terminal spacing marks` |
+| Package boundary | `feat(ai): add tool_choice passthrough` → `feat(coding-agent): expose tool_choice in config` |
+| Contract vs. consumers | `feat(agent): add TrackedTaskKind` → `refactor(agent): route shutdown through waitForTasks` |
+| Code vs. docs/spec | `fix(coding-agent): validate pi manifest` → `docs: record manifest validation in spec` |
+
+Practical rules:
+
+- Prefer several small commits over one large one; "too granular" is a much
+  cheaper mistake than "unreviewable".
+- Never mix an unrelated drive-by cleanup into a functional commit. Land it as
+  its own `refactor:` / `style:` commit, or leave it alone.
+- Never mix a dependency or lockfile change into a feature commit.
+- Stage by explicit path (see above), which is also what makes slicing
+  feasible: `git add <paths>` per slice, `git status` before each commit.
+- If a change cannot be split without breaking the build, it is one commit —
+  say so in the message body rather than forcing an artificial split.
+
 ### Commit message format
 
 ```
@@ -101,6 +140,9 @@ closes the first.
 |---|---|
 | Range specifier (`^`, `~`, `*`) on an external dep | `check:pinned-deps` hard fail |
 | `git add -A` / `git add .` | Stages another session's in-flight work |
+| One commit carrying a fix + refactor + doc update | Reviewer cannot isolate the behavior change; revert takes unrelated work with it |
+| Commit message containing "and" / a bullet list of intents | Signals the commit should have been two or more |
+| A commit that does not build on its own | Breaks `git bisect` and per-commit review |
 | `PI_ALLOW_LOCKFILE_CHANGE=1` set out of habit | Smuggles unreviewed lockfile diffs into unrelated commits |
 | Adding a lifecycle-script dep without an allowlist entry + reason | `check:shrinkwrap` / `check:install-lock` hard fail, and a real supply-chain risk |
 | Hand-editing `npm-shrinkwrap.json` or `install-lock/` | Regenerate with the owning script instead |

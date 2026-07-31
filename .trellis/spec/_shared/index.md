@@ -45,7 +45,7 @@ and `CONTRIBUTING.md` for those.
 | [TypeScript And Style](./typescript-and-style.md) | `.ts` extension imports, erasable syntax, biome formatting, `any` policy, dynamic imports |
 | [Testing](./testing.md) | `./test.sh`, faux provider, coding-agent suite contract, vitest configs, tmux TUI checks |
 | [Checks And Commands](./checks-and-commands.md) | The seven steps of `npm run check`, pre-commit, CI parity |
-| [Dependencies And Git](./dependencies-and-git.md) | Pinned versions, lockfile guards, install-script allowlists, multi-session git rules |
+| [Dependencies And Git](./dependencies-and-git.md) | Pinned versions, lockfile guards, install-script allowlists, multi-session git rules, atomic commit slicing |
 
 ## Package Layers
 
@@ -77,6 +77,27 @@ Always-on companions, read alongside this layer:
 [code reuse](../guides/code-reuse-thinking-guide.md),
 [cross-layer](../guides/cross-layer-thinking-guide.md), and the AI
 cross-review false-positive checklist.
+
+## Language Rule
+
+Chinese is allowed in exactly one place: the reply text an agent reports back to
+the user. Everything that is written to disk is English.
+
+| Artifact | Language |
+|---|---|
+| Chat reply / status report to the user | Chinese |
+| Source code, comments, identifiers, log and error strings | English |
+| `.trellis/spec/**` | English |
+| `.trellis/tasks/**` (`prd.md`, `design.md`, `implement.md`, JSONL notes) | English |
+| `.trellis/workspace/**` journals, commit messages, PR text, docs | English |
+
+A task artifact or spec page written in Chinese is a defect: rewrite it in
+English rather than appending a translation.
+
+One exemption: non-Latin characters used as *data* inside a technical example
+(CJK width samples, i18n fixtures, encoding test strings) are not prose and
+stay as they are — see the width-2 grapheme example in
+`pi-tui/rendering/terminal-and-width.md`.
 
 ## Working Style
 
