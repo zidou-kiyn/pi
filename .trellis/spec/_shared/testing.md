@@ -66,6 +66,76 @@ registration-tracking pattern.
 | `packages/tui/vitest.config.ts` | `include` is limited to `test/wrap-ansi.test.ts`; every other TUI test must be named explicitly on the command line |
 | `packages/protocol/vitest.config.ts` | Standalone: node environment, `globals: true`, dot reporter. It does not merge `vitest.base.ts`, because the package has no `@earendil-works/*` dependency to alias |
 
+## Scenario: Hydrate generated model data before type-checking
+
+### 1. Scope / Trigger
+
+Run this preflight after a fresh checkout, after deleting ignored files, or when
+`tsgo --noEmit` reports many built-in model IDs as not assignable to `never`.
+The exact model values under `packages/ai/src/providers/data/` are ignored by
+git, while the tracked `*.models.ts` wrappers derive their model-ID types from
+those JSON keys.
+
+### 2. Signatures
+
+```bash
+npm run hydrate:model-data
+npm run check
+```
+
+The package-level equivalent is `npm --prefix packages/ai run
+hydrate-model-data`.
+
+### 3. Contracts
+
+- Input: network access to the model catalog sources used by
+  `packages/ai/scripts/generate-models.ts`.
+- Output: ignored JSON shards and `.manifest.json` under
+  `packages/ai/src/providers/data/`.
+- Tracked files: hydration uses `--data-only` and must not modify
+  `packages/ai/src/models.generated.ts` or the tracked provider wrappers.
+
+### 4. Validation & Error Matrix
+
+| Condition | Expected handling |
+|---|---|
+| Data directory is absent | Run `npm run hydrate:model-data` before type-checking |
+| Most catalog lookups narrow to `never` | Treat missing hydration as the first diagnosis, not as hundreds of independent test defects |
+| Hydration succeeds but a few model IDs remain invalid | The remote catalog has drifted from tracked tests; report those exact IDs as a separate check blocker |
+| Hydration changes tracked generated files | Stop and inspect; `--data-only` should only write ignored provider data |
+
+### 5. Good / Base / Bad Cases
+
+- Good: hydrate once, then `npm run check` type-checks against complete model
+  key unions.
+- Base: an already hydrated tree can run `npm run check` directly.
+- Bad: interpreting a missing data directory as a source typing regression and
+  editing tests or weakening model types.
+
+### 6. Tests Required
+
+- `npm run hydrate:model-data` exits successfully.
+- `git status --short` shows no hydration-generated tracked changes.
+- `npm run check` reaches type-checking with concrete `ModelId<...>` unions
+  rather than `never`.
+- Any remaining catalog-drift errors are recorded with their provider and
+  model IDs.
+
+### 7. Wrong vs Correct
+
+Wrong:
+
+```bash
+npm run check   # data directory is absent; hundreds of model IDs become never
+```
+
+Correct:
+
+```bash
+npm run hydrate:model-data
+npm run check
+```
+
 ### Interactive TUI verification uses tmux
 
 For behavior that only appears in a real terminal, `AGENTS.md` prescribes:
