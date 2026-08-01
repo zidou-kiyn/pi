@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/_shared/dependencies-and-git.md", "reason": "Apply dependency execution security and atomic commit discipline."}
+{"file": ".trellis/spec/pi-coding-agent/extensions/index.md", "reason": "Implement the dedicated command on the supported extension API."}
+{"file": ".trellis/spec/pi-coding-agent/core/session-and-config.md", "reason": "Treat ctx.reload as terminal and keep package settings behavior isolated."}
+{"file": ".trellis/tasks/08-01-interactive-models-config/research/upstream-skills.md", "reason": "Preserve the exact two-skill upstream behavior and attribution boundary."}
+{"file": ".trellis/tasks/08-01-interactive-models-config/research/skills-cli-contract.md", "reason": "Use the verified CLI flags, lock/hash semantics, and rollback constraints."}

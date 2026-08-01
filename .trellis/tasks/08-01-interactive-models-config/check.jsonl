@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/_shared/testing.md", "reason": "Use deterministic targeted tests and avoid real provider APIs."}
+{"file": ".trellis/spec/pi-coding-agent/modes/rpc-and-print.md", "reason": "Verify non-TUI mode framing and no-write behavior."}
+{"file": ".trellis/spec/pi-coding-agent/core/session-and-config.md", "reason": "Verify path, hot-reload, and external file-write interactions."}
+{"file": ".trellis/tasks/08-01-interactive-models-config/research/models-wizard.md", "reason": "Check every researched secret, permission, collision, and sandbox invariant."}

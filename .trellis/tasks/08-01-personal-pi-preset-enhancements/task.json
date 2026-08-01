@@ -1,0 +1,29 @@
+{
+  "id": "personal-pi-preset-enhancements",
+  "name": "personal-pi-preset-enhancements",
+  "title": "Enhance personal Pi preset",
+  "description": "",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": "pi-agent-core",
+  "priority": "P2",
+  "creator": "zidou-kiyn",
+  "assignee": "zidou-kiyn",
+  "createdAt": "2026-08-01",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "08-01-integrate-grill-me",
+    "08-01-interactive-models-config"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

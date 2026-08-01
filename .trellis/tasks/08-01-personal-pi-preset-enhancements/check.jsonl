@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/_shared/testing.md", "reason": "Run the clean-install integration and secret-safe validation matrix."}
+{"file": ".trellis/tasks/08-01-interactive-models-config/research/pi-sandbox-and-tui.md", "reason": "Verify installed resources and TUI behavior in isolated state directories."}
+{"file": ".trellis/tasks/08-01-interactive-models-config/research/models-wizard.md", "reason": "Verify final provider-writing, permissions, redaction, and model discovery behavior."}

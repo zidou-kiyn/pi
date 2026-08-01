@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/_shared/typescript-and-style.md", "reason": "Apply erasable TypeScript, import, and formatting rules."}
+{"file": ".trellis/spec/pi-coding-agent/extensions/index.md", "reason": "Follow the public extension API and nearest-example workflow."}
+{"file": ".trellis/spec/pi-coding-agent/modes/interactive-tui.md", "reason": "Implement the TUI-only masked wizard within interactive mode constraints."}
+{"file": ".trellis/spec/pi-tui/components/component-model.md", "reason": "Implement Focusable, width-safe custom components without leaking secret text."}
+{"file": ".trellis/tasks/08-01-interactive-models-config/research/models-wizard.md", "reason": "Use researched models.json, masking, redaction, write, and hot-reload contracts."}

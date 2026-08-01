@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/_shared/testing.md", "reason": "Run deterministic unit, sandbox, and tmux checks without secret fixtures."}
+{"file": ".trellis/spec/pi-coding-agent/modes/rpc-and-print.md", "reason": "Verify consent and no-write behavior across non-TUI modes."}
+{"file": ".trellis/tasks/08-01-interactive-models-config/research/pi-sandbox-and-tui.md", "reason": "Use the researched clean-home, RPC discovery, reload, and behavioral smoke matrix."}
+{"file": ".trellis/tasks/08-01-interactive-models-config/research/pi-preset-boundaries-and-readme.md", "reason": "Check command isolation, rollback claims, duplicate paths, and public documentation."}
