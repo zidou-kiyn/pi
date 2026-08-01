@@ -110,3 +110,25 @@ Shipped github.com/zidou-kiyn/pi-preset: a pi package with the vibrant-footer st
 ### Status
 
 [OK] **Completed**
+
+
+## Session 3: Fix Windows models permissions
+
+**Date**: 2026-08-01
+**Task**: Fix Windows models permissions
+**Package**: pi-agent-core
+**Branch**: `main`
+
+### Summary
+
+Fixed the pi-preset models wizard on Windows by skipping only synthetic POSIX group/other mode checks on win32, preserved POSIX owner-only enforcement, added first-add/no-op/replacement regressions, verified secret safety and hot reload, and published the product commit.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d7890b2` | (see git log) |
+
+### Status
+
+[OK] **Completed**
