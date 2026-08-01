@@ -1,3 +1,3 @@
 {"file": ".trellis/spec/_shared/dependencies-and-git.md", "reason": "Keep the two child commits isolated and reviewable."}
-{"file": ".trellis/tasks/08-01-interactive-models-config/research/upstream-skills.md", "reason": "Carry the upstream two-skill contract into final integration review."}
-{"file": ".trellis/tasks/08-01-interactive-models-config/research/models-wizard.md", "reason": "Carry the models wizard security contract into final integration review."}
+{"file": ".trellis/tasks/archive/2026-08/08-01-interactive-models-config/research/upstream-skills.md", "reason": "Carry the upstream two-skill contract into final integration review."}
+{"file": ".trellis/tasks/archive/2026-08/08-01-interactive-models-config/research/models-wizard.md", "reason": "Carry the models wizard security contract into final integration review."}

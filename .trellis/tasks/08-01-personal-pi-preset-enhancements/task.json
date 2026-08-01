@@ -3,7 +3,7 @@
   "name": "personal-pi-preset-enhancements",
   "title": "Enhance personal Pi preset",
   "description": "",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": "pi-agent-core",
