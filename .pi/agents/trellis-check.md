@@ -3,7 +3,7 @@ name: trellis-check
 description: |
   Code quality check expert. Reviews changes against Trellis specs, fixes issues directly, and verifies quality gates.
 tools: read, write, edit, bash, find, grep
-model: anthropic-proxy/claude-opus-5
+model: openai-proxy/gpt-5.6-sol
 thinking: xhigh
 ---
 

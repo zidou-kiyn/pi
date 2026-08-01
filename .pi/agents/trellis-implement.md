@@ -3,8 +3,8 @@ name: trellis-implement
 description: |
   Code implementation expert. Understands Trellis specs and requirements, then implements features. No git commit allowed.
 tools: read, write, edit, bash, find, grep
-model: anthropic-proxy/claude-opus-5
-thinking: xhigh
+model: openai-proxy/gpt-5.6-luna
+thinking: max
 ---
 
 ## Required: Load Trellis Context First
