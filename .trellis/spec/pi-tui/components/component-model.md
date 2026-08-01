@@ -108,6 +108,88 @@ otherwise the hardware cursor is positioned on the container, not the
 nested input. See `packages/coding-agent/docs/tui.md` "Container Components
 with Embedded Inputs" for the canonical example.
 
+## Scenario: Masked input in an extension TUI
+
+### 1. Scope / Trigger
+
+Use this pattern when an extension must collect a credential or other secret.
+`ctx.ui.input()` renders the ordinary `Input` value, and RPC does not support
+custom TUI components, so secret entry must be explicitly TUI-only.
+
+### 2. Signatures
+
+```ts
+class MaskedInput implements Component, Focusable {
+	focused: boolean;
+	handleInput(data: string): void;
+	render(width: number): string[];
+	invalidate(): void;
+}
+
+ctx.ui.custom<string | undefined>((tui, theme, keybindings, done) =>
+	new MaskedInput(/* ... */),
+);
+```
+
+### 3. Contracts
+
+- Reuse a private `Input` as the editing engine by calling
+  `Input.handleInput()` and `Input.getValue()`.
+- Never call the inner `Input.render()` and never include its value in a
+  rendered or cached string.
+- Render either an empty state or a fixed mask independent of secret length.
+- Implement `Focusable`, forward `focused` to the inner input, and emit
+  `CURSOR_MARKER` at the visible cursor position.
+- Resolve the real value only on confirmation. Replace the inner `Input` on
+  settle/dispose so its text, undo history, and kill ring become unreachable.
+- Reject print, JSON, and RPC modes before prompting; never fall back to
+  ordinary input.
+
+### 4. Validation & Error Matrix
+
+| Condition | Expected handling |
+|---|---|
+| Mode is not `tui` | Report that interactive TUI mode is required; perform no prompt or write |
+| User cancels | Clear the inner input and resolve `undefined` |
+| User confirms an empty value | Return it to the caller for secret-free validation |
+| Input arrives after settlement | Ignore it |
+| Terminal width is zero or narrow | Return lines whose `visibleWidth()` is at most the supplied width |
+
+### 5. Good / Base / Bad Cases
+
+- Good: secrets of different lengths produce identical non-empty rendered
+  masks and never appear in terminal captures.
+- Base: an empty input renders only the prompt and cursor.
+- Bad: using `ctx.ui.input()`, calling `Input.render()`, or rendering one mask
+  glyph per secret character.
+
+### 6. Tests Required
+
+- Different-length secrets render the same fixed mask.
+- Rendered lines, notifications, captured TUI output, and raw TUI logs do not
+  contain the runtime-generated secret.
+- Confirm returns the value once; cancel returns `undefined`; later input is
+  ignored.
+- Width tests include `0`, `1`, and normal terminal widths.
+- Non-TUI mode tests prove the component and write path are never reached.
+
+### 7. Wrong vs Correct
+
+Wrong:
+
+```ts
+const secret = await ctx.ui.input("API key"); // ordinary input renders it
+```
+
+Correct:
+
+```ts
+if (ctx.mode !== "tui") return;
+const secret = await ctx.ui.custom<string | undefined>((tui, theme, keybindings, done) =>
+	new MaskedInput(/* fixed mask; delegates editing only */, done),
+);
+```
+
 ### Editing components share infrastructure, not just conventions
 
 `Editor` (`components/editor.ts`) and `Input` (`components/input.ts`) both
