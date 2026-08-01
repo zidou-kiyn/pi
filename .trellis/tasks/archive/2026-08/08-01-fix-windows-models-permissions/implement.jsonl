@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/_shared/typescript-and-style.md", "reason": "Keep the TypeScript change erasable and consistent."}
+{"file": ".trellis/spec/_shared/testing.md", "reason": "Run focused tests safely and hydrate model data before the root check."}
+{"file": ".trellis/tasks/08-01-fix-windows-models-permissions/research/implementation-root-cause.md", "reason": "Apply the narrow win32 permission-gate fix without changing writer semantics."}
+{"file": ".trellis/tasks/08-01-fix-windows-models-permissions/research/regression-test-plan.md", "reason": "Cover first add, second no-op, replacement, and POSIX safety."}

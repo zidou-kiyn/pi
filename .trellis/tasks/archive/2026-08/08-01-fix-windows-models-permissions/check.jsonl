@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/_shared/testing.md", "reason": "Verify targeted tests, secret scan, and the hydrated root quality gate."}
+{"file": ".trellis/tasks/08-01-fix-windows-models-permissions/research/node-windows-file-modes.md", "reason": "Check the implementation against authoritative Windows mode semantics."}
+{"file": ".trellis/tasks/08-01-fix-windows-models-permissions/research/regression-test-plan.md", "reason": "Verify Windows repeat workflows and unchanged POSIX rejection."}
