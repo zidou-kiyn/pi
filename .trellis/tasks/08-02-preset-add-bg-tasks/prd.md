@@ -26,7 +26,7 @@ Ship `pi-patty-bg-tasks` (Claude Code style background tasks: auto-background at
 
 ## Key Decisions
 
-- **D4 (user-requested scope addition):** also ship `npm:pi-markdown-preview` (LaTeX/math rendering, `/preview*`, PDF export). Conflict-checked against the other two (npm 0.11.1 source + sandbox with all three installed on pi 0.83.0): its only tool is `preview_export` (`index.ts:4383`), its only commands are `/preview*`, and it registers **no** global shortcuts, so there is no tool-name collision and no keybinding warning. Its runtime prerequisites (pandoc, Chromium browser, optional LaTeX engine) are system tools the preset documents but does not install.
+- **D4 (added, then reverted by user):** `npm:pi-markdown-preview` was briefly added after a conflict check (npm 0.11.1: only tool `preview_export`, only `/preview*` commands, no global shortcuts — no collision with the other two; verified in a three-package sandbox on pi 0.83.0). The user then dropped it: math only renders through `/preview`, never in the chat transcript, and their SSH + tmux (`allow-passthrough off`) setup cannot display inline terminal images anyway, so the feature was not worth carrying. Removed from the manifest before it ever reached the real environment; the conflict-check evidence stays here for future reference.
 
 - **D1 (user-confirmed):** the preset **actively writes** the `pi-tool-display` opt-out (option A), as a manifest-driven step with the same diff-first / confirm / idempotent contract as `webSearch.patch` — not a warn-only note. Accepted consequence: if the user later flips `registerToolOverrides.bash` back to `true` by hand, every `/preset-sync` will offer to flip it back to `false`.
 - **D2 (user-confirmed):** the preset also **actively writes** `keybindings.json` with `"tui.editor.cursorLeft": ["left"]` to silence the recurring Ctrl+B conflict warning. Accepted consequences: the emacs-style `ctrl+b` = cursor-left binding is given up (the `left` key remains), the preset now owns a third config file, and a hand-restored `ctrl+b` will be offered for removal on every sync.
@@ -34,7 +34,7 @@ Ship `pi-patty-bg-tasks` (Claude Code style background tasks: auto-background at
 
 ## Requirements
 
-- **R1** Add `npm:pi-patty-bg-tasks` and `npm:pi-markdown-preview` to `REQUIRED_PACKAGES` so `/preset-sync` installs them and `pi update --extensions` keeps them updated.
+- **R1** Add `npm:pi-patty-bg-tasks` to `REQUIRED_PACKAGES` so `/preset-sync` installs it and `pi update --extensions` keeps it updated.
 - **R2** Ensure `pi-patty-bg-tasks` owns the `bash` tool by making the preset turn off `pi-tool-display`'s `registerToolOverrides.bash`, using the same diff-first / confirm-before-write / idempotent contract as the other steps.
 - **R3** The write must be a leaf-level deep merge into the existing `pi-tool-display` `config.json`: every other key (`readOutputMode`, `diff*`, `bashOutputMode`, ...) is preserved, and a missing file or missing directory is handled without failing the whole sync.
 - **R4** No credential, private host, or personal preference enters the preset (existing repo invariant).
@@ -49,7 +49,7 @@ Ship `pi-patty-bg-tasks` (Claude Code style background tasks: auto-background at
 - **AC2** Accepting writes both changes; a second run reports no remaining steps for them (idempotent).
 - **AC3** A pre-existing `pi-tool-display/config.json` keeps every unrelated key and its file permissions after the patch.
 - **AC4** In real Pi after sync, `bash` is served by `pi-patty-bg-tasks` (Ctrl+B hint appears / `run_in_background` parameter accepted) while `pi-tool-display` still renders `read`, `grep`, `find`, `ls`, `edit`, `write`.
-- **AC7** With `pi-tool-display`, `pi-patty-bg-tasks`, and `pi-markdown-preview` all installed, pi starts with zero extension issues and registers `/preview`, `/preview-browser`, `/preview-pdf`, `/preview-clear-cache` alongside `/bg*` and `/tool-display`.
+- ~~AC7~~ (dropped with D4's reversal; the underlying sandbox evidence is recorded in D4).
 - **AC5** Secret scan of the preset tree and history stays clean.
 - **AC6** After sync, starting pi produces no `Extension shortcut conflict: 'ctrl+b'` warning, Ctrl+B backgrounds the running command, and a pre-existing `keybindings.json` with unrelated custom actions keeps them intact.
 
