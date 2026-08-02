@@ -3,8 +3,8 @@ name: trellis-research
 description: |
   Code and technical research expert. Finds relevant files, patterns, docs, and persists findings to the current task's research/ directory.
 tools: read, write, bash, find, grep
-model: openai-proxy/gpt-5.6-sol
-thinking: xhigh
+model: anthropic-cli-proxy/claude-opus-5
+thinking: high
 ---
 # Research Agent
 
