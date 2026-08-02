@@ -129,6 +129,38 @@ half of this contract is documented in
 [`../../pi-tui/components/component-model.md`](../../pi-tui/components/component-model.md).
 This hook is interactive-mode only; print and RPC mode never call it.
 
+### Two extensions owning one tool name is a fatal startup error; a shared shortcut is only a warning
+
+These two collisions look symmetric and are not.
+
+**Tools abort startup.** `detectExtensionConflicts`
+(`resource-loader.ts:1058-1092`) walks loaded extensions, and the second
+extension to register an already-owned tool (or flag) name produces
+`Tool "bash" conflicts with <first owner path>`. `addExtensionConflictDiagnostics`
+(`resource-loader.ts:626-633`) pushes each conflict onto
+`extensionsResult.errors`, `main.ts:735-738` turns those into `error`
+diagnostics reading `Failed to load extension "<path>": ...`, and
+`main.ts:844-848` prints the `pi -ne` hint and calls `process.exit(1)`. pi does
+not start. The comment on `addExtensionConflictDiagnostics` ("Keep all
+extensions loaded ... precedence is handled by load order") describes only the
+in-memory result object, not the CLI outcome, and
+`ExtensionRunner.getAllRegisteredTools` first-wins merge
+(`runner.ts:450-461`) is unreachable in the CLI for a duplicated name. Two
+installed packages that both override `bash` (e.g. `pi-tool-display` and
+`pi-patty-bg-tasks`) therefore make pi unstartable until one of them is
+configured to stand down; reordering `packages[]` changes nothing.
+
+**Shortcuts degrade instead.** `ExtensionRunner.resolveShortcuts`
+(`runner.ts:495-535`) emits a warning diagnostic and keeps running. A
+built-in key listed in `RESERVED_KEYBINDINGS_FOR_EXTENSION_CONFLICTS`
+(`runner.ts:71-90`) wins and the extension shortcut is skipped; any other
+built-in key (e.g. `ctrl+b` for `tui.editor.cursorLeft`,
+`pi-tui/src/keybindings.ts:63`) loses to the extension, which still gets the
+key and only costs a per-startup `Extension shortcut conflict` warning. The
+user-side fix is `keybindings.json`, where a per-action key list **replaces**
+the default list rather than extending it (`pi-tui/src/keybindings.ts:196-200`),
+so dropping the built-in claim removes the warning.
+
 ### Inline (path-less) extensions get synthetic `<inline:N>` identities
 
 Extensions passed as `extensionFactories` (plain functions, used by the SDK
@@ -180,3 +212,10 @@ asserts both forms.
   alone" — throws are swallowed; return the input string unchanged instead.
 - Registering a Markdown transformer and expecting it in print or RPC output
   — only the interactive transcript applies it.
+- Reasoning about a duplicated extension tool name as a precedence problem
+  ("the first registration wins, the other is inert") — the CLI exits 1 before
+  any precedence applies. Give an overriding tool a config switch to stand
+  down, or a name no other extension claims.
+- Adding a keybinding id to `RESERVED_KEYBINDINGS_FOR_EXTENSION_CONFLICTS` to
+  quiet a shortcut warning — that flips the outcome from "extension wins with
+  a warning" to "extension shortcut is skipped entirely".
